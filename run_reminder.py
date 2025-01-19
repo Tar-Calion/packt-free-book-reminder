@@ -17,9 +17,10 @@ def fetch_website_content(url):
         print(f"An error occurred: {e}")
         return None
 
-def send_email_via_gmail(subject, body, recipient):
+def send_email_via_gmail(subject, body):
     gmail_user = os.environ["GMAIL_USERNAME"]
     gmail_password = os.environ["GMAIL_APP_PASSWORD"]
+    recipient = os.environ["RECIPIENT_EMAIL"]
 
     msg = MIMEMultipart()
     msg["From"] = gmail_user
@@ -32,21 +33,22 @@ def send_email_via_gmail(subject, body, recipient):
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
 
+def get_email_body(website_content):
+    email_body = f"Hier ist der aktuelle Free-Learning-Buch-Link:\n\n{website_content}"
+    return email_body
+
 def main():
     url = "https://www.packtpub.com/free-learning"
-    content = fetch_website_content(url)
-    if content:
-        # Im einfachsten Fall einfach den kompletten HTML-Inhalt verschicken
-        email_body = f"Hier ist der aktuelle Free-Learning-Buch-Link:\n\n{content}"
+    website_content = fetch_website_content(url)
 
-        # Empfängeradresse aus Environment
-        recipient = os.environ["RECIPIENT_EMAIL"]
+    if website_content:
+        email_body = get_email_body(website_content)
 
         send_email_via_gmail(
             subject="Tägliches PacktPub Free Learning Buch",
-            body=email_body,
-            recipient=recipient
+            body=email_body
         )
+        print("Email wurde versendet")
     else:
         print("Konnte den Seiteninhalt nicht abrufen.")
 
