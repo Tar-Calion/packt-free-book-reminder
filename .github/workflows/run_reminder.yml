@@ -2,7 +2,7 @@ name: Run Packt Reminder
 
 on:
   schedule:
-    - cron: '0 12 * * *'  # Täglich um 12:00 UTC (entspricht 13:00 CET/MEZ)
+    - cron: '0 4 * * *'
   push:
     branches: [ main ]
   pull_request:
