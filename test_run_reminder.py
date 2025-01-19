@@ -111,6 +111,7 @@ class TestRunReminder(unittest.TestCase):
         self.assertIn('<div class="grid product-info main-product">', html_body)
         self.assertIn('<h3 class="product-info__title">Free eBook - Mastering Scientific Computing with R</h3>', html_body)
 
+        print(html_body)
         # Optional: Du kannst auch prüfen, dass der komplette HTML-Aufbau korrekt ist,
         # indem du noch andere Tags/Strukturen prüfst.
 
