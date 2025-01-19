@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import MagicMock
 from email_body_builder import EmailBodyBuilder
 from datetime import datetime
 import re
@@ -6,7 +7,10 @@ import re
 class TestEmailBodyBuilder(unittest.TestCase):
 
     def setUp(self):
-        self.builder = EmailBodyBuilder()
+        # Mock the OpenAI client and Labeler
+        mock_openai_client = MagicMock()
+        self.builder = EmailBodyBuilder(mock_openai_client)
+        self.builder.labeler.get_labels = MagicMock(return_value="Label 1, Label 2, Label 3")
 
     def test_get_email_body_with_valid_content(self):
         # Simulate a valid HTML content with the expected structure
@@ -70,7 +74,8 @@ class TestEmailBodyBuilder(unittest.TestCase):
             "Mastering Scientific Computing with R\t"
             "Paul Gerrard\t"
             "2015\t"
-            "How to master Scientific Computing with R\t\t"
+            "How to master Scientific Computing with R\t"
+            "Label 1, Label 2, Label 3\t"  # Include the mocked labels
             "Packt\t"
             "EPUB, PDF, MOBI\t"
             f"{today_date}\t"

@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from email_body_builder import EmailBodyBuilder
+from openai import OpenAI
 
 load_dotenv()
 
@@ -41,7 +42,9 @@ def main():
     website_content = fetch_website_content(url)
 
     if website_content:
-        email_builder = EmailBodyBuilder()
+        openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        
+        email_builder = EmailBodyBuilder(openai_client)
         email_body = email_builder.get_email_body(website_content)
         send_email_via_gmail(
             subject="Tägliches PacktPub Free Learning Buch",

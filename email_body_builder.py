@@ -1,7 +1,11 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
+from labeler import Labeler
 
 class EmailBodyBuilder:
+    def __init__(self, openai_client):
+        self.labeler = Labeler(openai_client)
+
     def get_email_body(self, website_content):
         """
         Sucht in 'website_content' nach einem parent div mit class='product__info'
@@ -45,8 +49,11 @@ class EmailBodyBuilder:
         # Get today's date in the format 'dd.mm.yyyy'
         today_date = datetime.now().strftime("%d.%m.%Y")
 
-        # Format the details as a tab-separated line
-        details_line = f"{title}\t{author}\t{publication_year}\t{description}\t\tPackt\tEPUB, PDF, MOBI\t{today_date}\tPackt Giveaway\t0"
+        # Get labels using the Labeler
+        labels = self.labeler.get_labels(title, author, description)
+
+        # Format the details as a tab-separated line, including labels
+        details_line = f"{title}\t{author}\t{publication_year}\t{description}\t{labels}\tPackt\tEPUB, PDF, MOBI\t{today_date}\tPackt Giveaway\t0"
 
         email_html = f"""
         <html>

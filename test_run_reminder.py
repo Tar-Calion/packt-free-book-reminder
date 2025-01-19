@@ -1,17 +1,10 @@
 import os
 import unittest
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock
 import smtplib
-
-# Wir gehen davon aus, dass dein Script "main_script.py" heißt und folgende Funktionen enthält:
-#  - fetch_website_content
-#  - send_email_via_gmail
-#  - main
-#
-# Und dass "EmailBodyExtractor" in einer separaten Datei "email_body_extractor.py" steckt,
-# die wir hier NICHT mocken, sondern real verwenden (so wie gewünscht).
-
 from run_reminder import fetch_website_content, send_email_via_gmail, main
+
+
 
 class TestRunReminder(unittest.TestCase):
 
@@ -20,6 +13,7 @@ class TestRunReminder(unittest.TestCase):
         os.environ["GMAIL_USERNAME"] = "testuser@gmail.com"
         os.environ["GMAIL_APP_PASSWORD"] = "testpassword"
         os.environ["RECIPIENT_EMAIL"] = "recipient@example.com"
+        os.environ["OPENAI_API_KEY"] = "test_openai_api_key"
 
     @patch("requests.get")
     def test_fetch_website_content_success(self, mock_get):
@@ -75,9 +69,10 @@ class TestRunReminder(unittest.TestCase):
         self.assertIn("Test Subject", args[2])                 # Betreff sollte in msg stecken
         self.assertIn("Test Body", args[2])                    # Body sollte in msg stecken
 
+    @patch("run_reminder.OpenAI")  # Mock the OpenAI client
     @patch("run_reminder.send_email_via_gmail")
     @patch("requests.get")
-    def test_main_integration(self, mock_requests_get, mock_send_email):
+    def test_main_integration(self, mock_requests_get, mock_send_email, mock_openai):
         """
         Integrationstest für die main-Funktion, bei dem requests gemockt wird,
         um das HTML aus einer Datei einzuspielen, und send_email_via_gmail gemockt wird,
@@ -91,6 +86,10 @@ class TestRunReminder(unittest.TestCase):
         mock_response.text = test_html_content
         mock_response.raise_for_status.return_value = None
         mock_requests_get.return_value = mock_response
+
+        # Mock the OpenAI client to avoid real API calls
+        mock_openai_instance = MagicMock()
+        mock_openai.return_value = mock_openai_instance
 
         # main aufrufen
         main()
@@ -114,7 +113,6 @@ class TestRunReminder(unittest.TestCase):
         print(html_body)
         # Optional: Du kannst auch prüfen, dass der komplette HTML-Aufbau korrekt ist,
         # indem du noch andere Tags/Strukturen prüfst.
-
 
 if __name__ == "__main__":
     unittest.main()
