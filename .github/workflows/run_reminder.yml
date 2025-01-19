@@ -1,8 +1,8 @@
-name: Python application
+name: Run Packt Reminder
 
 on:
   schedule:
-    - cron: '0 12 * * *'  # This cron expression runs the workflow every day at 13:00 German time (CET)
+    - cron: '0 12 * * *'  # Täglich um 12:00 UTC (entspricht 13:00 CET/MEZ)
   push:
     branches: [ main ]
   pull_request:
@@ -10,22 +10,26 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.12'  # Specify the Python version you need
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Run Python script
-      run: python run_reminder.py 
+      - name: Run Python script
+        # Hier definierst du die Secrets als Environment-Variablen
+        env:
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python run_reminder.py
