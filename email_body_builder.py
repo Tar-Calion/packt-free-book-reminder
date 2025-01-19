@@ -54,7 +54,7 @@ class EmailBodyBuilder:
           <body>
             <h2><a href="https://www.packtpub.com/free-learning">Heute bei PacktPub Free Learning:</a></h2>
             {snippet}
-            <textarea rows="1" cols="200">{details_line}</textarea>
+            <textarea rows="2" cols="100">{details_line}</textarea>
           </body>
         </html>
         """
