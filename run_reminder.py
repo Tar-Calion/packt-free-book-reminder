@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from email_body_extractor import EmailBodyExtractor
+from email_body_builder import EmailBodyBuilder
 
 load_dotenv()
 
@@ -41,8 +41,8 @@ def main():
     website_content = fetch_website_content(url)
 
     if website_content:
-        extractor = EmailBodyExtractor()
-        email_body = extractor.get_email_body(website_content)
+        email_builder = EmailBodyBuilder()
+        email_body = email_builder.get_email_body(website_content)
         send_email_via_gmail(
             subject="Tägliches PacktPub Free Learning Buch",
             html_body=email_body

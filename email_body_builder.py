@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-class EmailBodyExtractor:
+class EmailBodyBuilder:
     def get_email_body(self, website_content):
         """
         Sucht in 'website_content' nach einem parent div mit class='product__info'
@@ -52,7 +52,7 @@ class EmailBodyExtractor:
         <html>
           <head></head>
           <body>
-            <h2>Heute bei PacktPub Free Learning:</h2>
+            <h2><a href="https://www.packtpub.com/free-learning">Heute bei PacktPub Free Learning:</a></h2>
             {snippet}
             <textarea rows="1" cols="200">{details_line}</textarea>
           </body>

@@ -1,12 +1,12 @@
 import unittest
-from email_body_extractor import EmailBodyExtractor
+from email_body_builder import EmailBodyBuilder
 from datetime import datetime
 import re
 
-class TestEmailBodyExtractor(unittest.TestCase):
+class TestEmailBodyBuilder(unittest.TestCase):
 
     def setUp(self):
-        self.extractor = EmailBodyExtractor()
+        self.builder = EmailBodyBuilder()
 
     def test_get_email_body_with_valid_content(self):
         # Simulate a valid HTML content with the expected structure
@@ -22,7 +22,7 @@ class TestEmailBodyExtractor(unittest.TestCase):
         </html>
         """
         expected_snippet = "<div class=\"main-product\">\n<p>Expected content</p>\n</div>"
-        email_body = self.extractor.get_email_body(website_content)
+        email_body = self.builder.get_email_body(website_content)
         self.assertIn(expected_snippet, email_body)
 
     def test_get_email_body_with_no_main_product(self):
@@ -39,7 +39,7 @@ class TestEmailBodyExtractor(unittest.TestCase):
         </html>
         """
         expected_message = "<p>Leider kein passender Ausschnitt gefunden.</p>"
-        email_body = self.extractor.get_email_body(website_content)
+        email_body = self.builder.get_email_body(website_content)
         self.assertIn(expected_message, email_body)
 
     def test_get_email_body_with_no_product_info(self):
@@ -54,7 +54,7 @@ class TestEmailBodyExtractor(unittest.TestCase):
         </html>
         """
         expected_message = "<p>Leider kein passender Ausschnitt gefunden.</p>"
-        email_body = self.extractor.get_email_body(website_content)
+        email_body = self.builder.get_email_body(website_content)
         self.assertIn(expected_message, email_body)
 
     def test_details_line_from_file(self):
@@ -78,7 +78,7 @@ class TestEmailBodyExtractor(unittest.TestCase):
             "0"
         )
 
-        email_body = self.extractor.get_email_body(website_content)
+        email_body = self.builder.get_email_body(website_content)
         self.assertIn(expected_details_line, email_body)
 
 if __name__ == "__main__":
