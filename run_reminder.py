@@ -4,6 +4,9 @@ import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def fetch_website_content(url):
     try:
