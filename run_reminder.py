@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 from email_body_builder import EmailBodyBuilder
 from openai import OpenAI
 
-load_dotenv()
-
 def fetch_website_content(url):
     try:
         response = requests.get(url)
@@ -38,6 +36,8 @@ def send_email_via_gmail(subject, html_body):
         server.sendmail(gmail_user, recipient, msg.as_string())
 
 def main():
+    load_dotenv(override=True)
+
     url = "https://www.packtpub.com/free-learning"
     website_content = fetch_website_content(url)
 

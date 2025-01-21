@@ -51,17 +51,66 @@ class EmailBodyBuilder:
 
         # Get labels using the Labeler
         labels = self.labeler.get_labels(title, author, description)
-
-        # Format the details as a tab-separated line, including labels
-        details_line = f"{title}\t{author}\t{publication_year}\t{description}\t{labels}\tPackt\tEPUB, PDF, MOBI\t{today_date}\tPackt Giveaway\t0"
+        
+        details_line = f"{title}\t{author}\t{publication_year}\t{description}\t{labels}\tPackt\tEPUB, PDF, MOBI\t{today_date}\tPackt Giveaway\t0" 
 
         email_html = f"""
         <html>
-          <head></head>
+          <head>
+            <style>
+              table {{
+                border-collapse: collapse;
+                width: 100%;
+              }}
+              th, td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+              }}
+              th {{
+                background-color: #f2f2f2;
+              }}
+              tr:nth-child(even) {{
+                background-color: #f9f9f9;
+              }}
+              tr:hover {{
+                background-color: #ddd;
+              }}
+            </style>
+          </head>
           <body>
             <h2><a href="https://www.packtpub.com/free-learning">Heute bei PacktPub Free Learning:</a></h2>
             {snippet}
-            <textarea rows="2" cols="100">{details_line}</textarea>
+            <table>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication Year</th>
+                <th>Description</th>
+                <th>Labels</th>
+                <th>Publisher</th>
+                <th>Formats</th>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Price</th>
+              </tr>
+              <tr>
+                <td>{title}</td>
+                <td>{author}</td>
+                <td>{publication_year}</td>
+                <td>{description}</td>
+                <td>{labels}</td>
+                <td>Packt</td>
+                <td>EPUB, PDF, MOBI</td>
+                <td>{today_date}</td>
+                <td>Packt Giveaway</td>
+                <td>0</td>
+              </tr>
+            </table>
+
+            <p/>
+            <textarea rows="5" cols="150">{details_line}</textarea>
+
           </body>
         </html>
         """
