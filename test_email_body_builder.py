@@ -109,5 +109,45 @@ class TestEmailBodyBuilder(unittest.TestCase):
 
         self.assertIn("https://www.packtpub.com/images/star--100-white.svg", email_body)
 
+    def test_get_email_body_with_openai_exception(self):
+        # Simulate a valid HTML content with the expected structure
+        website_content = """
+        <html>
+            <body>
+                <div class="product__info">
+                    <div class="main-product">
+                        <h3 class="product-info__title">Free eBook - Sample Title</h3>
+                        <span class="product-info__author">By Sample Author</span>
+                        <div class="free_learning__product_pages_date">Published: 2023</div>
+                        <div class="free_learning__product_description">Sample Description</div>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        today_date = datetime.now().strftime("%d.%m.%Y")
+        expected_snippet = "<div class=\"main-product\">\n<h3 class=\"product-info__title\">Free eBook - Sample Title</h3>\n<span class=\"product-info__author\">By Sample Author</span>\n<div class=\"free_learning__product_pages_date\">Published: 2023</div>\n<div class=\"free_learning__product_description\">Sample Description</div>\n</div>"
+        expected_table_row = f"""
+              <tr>
+                <td>Sample Title</td>
+                <td>Sample Author</td>
+                <td>2023</td>
+                <td>Sample Description</td>
+                <td></td>
+                <td>Packt</td>
+                <td>EPUB, PDF, MOBI</td>
+                <td>{today_date}</td>
+                <td>Packt Giveaway</td>
+                <td>0</td>
+              </tr>
+        """
+
+        # Mock the labeler to raise an exception
+        self.builder.labeler.get_labels.side_effect = Exception("OpenAI client error")
+
+        email_body = self.builder.get_email_body(website_content)
+        self.assertIn(expected_snippet, email_body)
+        self.assertIn(expected_table_row.strip(), email_body)
+
 if __name__ == "__main__":
     unittest.main() 

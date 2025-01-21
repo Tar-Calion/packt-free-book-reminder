@@ -53,7 +53,11 @@ class EmailBodyBuilder:
         today_date = datetime.now().strftime("%d.%m.%Y")
 
         # Get labels using the Labeler
-        labels = self.labeler.get_labels(title, author, description)
+        try:
+            labels = self.labeler.get_labels(title, author, description)
+        except Exception as e:
+            print(f"Could not get labels due to exception: {e}")
+            labels = ""
         
         details_line = f"{title}\t{author}\t{publication_year}\t{description}\t{labels}\tPackt\tEPUB, PDF, MOBI\t{today_date}\tPackt Giveaway\t0" 
 
