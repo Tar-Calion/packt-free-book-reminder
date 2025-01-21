@@ -8,9 +8,9 @@ class EmailBodyBuilder:
 
     def get_email_body(self, website_content):
         """
-        Sucht in 'website_content' nach einem parent div mit class='product__info'
-        und darin nach dem Child div mit class='main-product'.
-        Gibt diesen Ausschnitt als HTML-String zurück.
+        Searches in 'website_content' for a parent div with class='product__info'
+        and within it for the child div with class='main-product'.
+        Returns this snippet as an HTML string.
         """
         soup = BeautifulSoup(website_content, "html.parser")
 
@@ -42,9 +42,12 @@ class EmailBodyBuilder:
                 if description_tag:
                     description = description_tag.get_text(strip=True)
 
-        # Falls snippet leer ist, geben wir einen kleinen Hinweis
+        # If snippet is empty, we provide a small hint
         if not snippet:
-            snippet = "<p>Leider kein passender Ausschnitt gefunden.</p>"
+            snippet = "<p>Unfortunately, no matching snippet found.</p>"
+
+        # Replace relative path in images
+        snippet = snippet.replace("src=\"/images", "src=\"https://www.packtpub.com/images")
 
         # Get today's date in the format 'dd.mm.yyyy'
         today_date = datetime.now().strftime("%d.%m.%Y")
@@ -76,11 +79,18 @@ class EmailBodyBuilder:
               tr:hover {{
                 background-color: #ddd;
               }}
+              .product-info__rating {{
+                background-color: #333; /* Dark background */
+                color: #fff; /* Bright text */
+                padding: 10px;
+                border-radius: 5px;
+              }}
             </style>
           </head>
           <body>
-            <h2><a href="https://www.packtpub.com/free-learning">Heute bei PacktPub Free Learning:</a></h2>
+            <h2><a href="https://www.packtpub.com/free-learning">Today at PacktPub Free Learning:</a></h2>
             {snippet}
+            <p/>
             <table>
               <tr>
                 <th>Title</th>

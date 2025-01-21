@@ -61,7 +61,7 @@ class TestEmailBodyBuilder(unittest.TestCase):
             </body>
         </html>
         """
-        expected_message = "<p>Leider kein passender Ausschnitt gefunden.</p>"
+        expected_message = "<p>Unfortunately, no matching snippet found.</p>"
         email_body = self.builder.get_email_body(website_content)
         self.assertIn(expected_message, email_body)
 
@@ -76,11 +76,11 @@ class TestEmailBodyBuilder(unittest.TestCase):
             </body>
         </html>
         """
-        expected_message = "<p>Leider kein passender Ausschnitt gefunden.</p>"
+        expected_message = "<p>Unfortunately, no matching snippet found.</p>"
         email_body = self.builder.get_email_body(website_content)
         self.assertIn(expected_message, email_body)
 
-    def test_details_table(self):
+    def test_full_website(self):
         # Load the complete website content from test_website_data.html
         with open('test_website_data.html', 'r', encoding='utf-8') as file:
             website_content = file.read()
@@ -106,6 +106,8 @@ class TestEmailBodyBuilder(unittest.TestCase):
 
         email_body = self.builder.get_email_body(website_content)
         self.assertRegex(email_body, expected_table_row_pattern)
+
+        self.assertIn("https://www.packtpub.com/images/star--100-white.svg", email_body)
 
 if __name__ == "__main__":
     unittest.main() 
