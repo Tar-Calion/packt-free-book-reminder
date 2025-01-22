@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 from labeler import Labeler
+import re
 
 class EmailBodyBuilder:
     def __init__(self, openai_client):
@@ -33,6 +34,8 @@ class EmailBodyBuilder:
                 if author_tag:
                     author = author_tag.get_text(strip=True)
                     author = author.removeprefix("By").strip()
+                    author = re.sub(r'\s+', ' ', author)
+                    author = author.replace(' ,', ',')
 
                 publication_date_tag = main_product_div.find("div", class_="free_learning__product_pages_date")
                 if publication_date_tag:

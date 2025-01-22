@@ -20,7 +20,8 @@ class TestEmailBodyBuilder(unittest.TestCase):
                 <div class="product__info">
                     <div class="main-product">
                         <h3 class="product-info__title">Free eBook - Sample Title</h3>
-                        <span class="product-info__author">By Sample Author</span>
+                        <span class="product-info__author">By Sample Author            
+                        ,                 Author 2</span>
                         <div class="free_learning__product_pages_date">Published: 2023</div>
                         <div class="free_learning__product_description">Sample Description</div>
                     </div>
@@ -29,11 +30,11 @@ class TestEmailBodyBuilder(unittest.TestCase):
         </html>
         """
         today_date = datetime.now().strftime("%d.%m.%Y")
-        expected_snippet = "<div class=\"main-product\">\n<h3 class=\"product-info__title\">Free eBook - Sample Title</h3>\n<span class=\"product-info__author\">By Sample Author</span>\n<div class=\"free_learning__product_pages_date\">Published: 2023</div>\n<div class=\"free_learning__product_description\">Sample Description</div>\n</div>"
+        expected_snippet = "<div class=\"main-product\">\n<h3 class=\"product-info__title\">Free eBook - Sample Title</h3>\n<span class=\"product-info__author\">By Sample Author            \n                        ,                 Author 2</span>\n<div class=\"free_learning__product_pages_date\">Published: 2023</div>\n<div class=\"free_learning__product_description\">Sample Description</div>\n</div>"
         expected_table_row = f"""
               <tr>
                 <td>Sample Title</td>
-                <td>Sample Author</td>
+                <td>Sample Author, Author 2</td>
                 <td>2023</td>
                 <td>Sample Description</td>
                 <td>Label 1, Label 2, Label 3</td>
