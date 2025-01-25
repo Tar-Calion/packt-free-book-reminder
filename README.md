@@ -63,7 +63,7 @@ To run the script locally, execute the following command:
 
 ## GitHub Workflow
 
-The project includes a GitHub Actions workflow defined in `.github/workflows/run_reminder.yml`. This workflow is triggered on a schedule (daily at 4 AM UTC), on pushes to the `main` branch, and on pull requests to the `main` branch.
+The project includes a GitHub Actions workflow defined in `.github/workflows/run_reminder.yml`. This workflow is triggered on a schedule, on pushes to the `main` branch, and on pull requests to the `main` branch.
 
 ### Environment Variables
 
@@ -77,6 +77,8 @@ The workflow uses the following secrets and variables:
 Ensure these are set in your GitHub repository's secrets and variables settings.
 
 ## Error handling
+
+If the website could not be downloaded, it will retry up to 3 times before failing.
 
 If an error occurs during the OpenAI API call, the email will still be sent, but without labels.
 
