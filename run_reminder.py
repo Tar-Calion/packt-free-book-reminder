@@ -7,8 +7,21 @@ import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from email_body_builder import EmailBodyBuilder
+from time import sleep
 from openai import OpenAI
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=4, max=10),
+    retry=retry_if_exception_type(requests.exceptions.RequestException),
+)
 def fetch_website_content(url):
     try:
         response = requests.get(url)
@@ -17,6 +30,7 @@ def fetch_website_content(url):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise e
+
 
 def send_email_via_gmail(subject, html_body):
     gmail_user = os.environ["GMAIL_USERNAME"]
@@ -37,7 +51,6 @@ def send_email_via_gmail(subject, html_body):
         server.login(gmail_user, gmail_password)
         server.sendmail(gmail_user, recipient, msg.as_string())
 
-    
 
 def main():
     load_dotenv(override=True)
@@ -48,13 +61,12 @@ def main():
     print(f"Fetched Packt website.")
 
     openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    
+
     email_builder = EmailBodyBuilder(openai_client)
     email_body = email_builder.get_email_body(website_content)
 
     send_email_via_gmail(
-        subject="Daily PacktPub Free Learning Book Reminder",
-        html_body=email_body
+        subject="Daily PacktPub Free Learning Book Reminder", html_body=email_body
     )
 
     print("Reminder email was sent.")

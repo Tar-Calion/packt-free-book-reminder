@@ -3,13 +3,15 @@ import unittest
 from unittest.mock import patch, MagicMock
 import smtplib
 from run_reminder import fetch_website_content, send_email_via_gmail, main
-
+from requests.exceptions import RequestException, ConnectionError, Timeout
+import requests
+from tenacity import RetryError
 
 
 class TestRunReminder(unittest.TestCase):
 
     def setUp(self):
-        """ SetUp is called before each test. Here you can mock environment variables. """
+        """SetUp is called before each test. Here you can mock environment variables."""
         os.environ["GMAIL_USERNAME"] = "testuser@gmail.com"
         os.environ["GMAIL_APP_PASSWORD"] = "testpassword"
         os.environ["RECIPIENT_EMAIL"] = "recipient@example.com"
@@ -33,15 +35,49 @@ class TestRunReminder(unittest.TestCase):
         self.assertEqual(content, "<html><body>Test Content</body></html>")
 
     @patch("requests.get")
-    def test_fetch_website_content_exception(self, mock_get):
-        """Tests if fetch_website_content raises an exception when an exception occurs."""
-        mock_get.side_effect = Exception("Test Exception")
+    def test_fetch_website_content_retries_three_times_on_request_exception(
+        self, mock_get
+    ):
+        """Tests that fetch_website_content retries 3 times on RequestException."""
+        mock_get.side_effect = ConnectionError("Connection failed")
 
-        with self.assertRaises(Exception) as context:
-            fetch_website_content("https://www.example.com")
+        # We expect RetryError after all attempts are exhausted
+        with self.assertRaises(RetryError) as context:
+            fetch_website_content("http://example.com")
 
-        # Check if the exception contains the expected message
-        self.assertEqual(str(context.exception), "Test Exception")
+        # Verify the underlying exception is ConnectionError
+        self.assertIsInstance(
+            context.exception.last_attempt.exception(), ConnectionError
+        )
+        self.assertEqual(mock_get.call_count, 3)
+
+    @patch("requests.get")
+    def test_fetch_website_content_no_retry_on_non_request_exception(self, mock_get):
+        """Tests that fetch_website_content does not retry on non-RequestException."""
+        mock_get.side_effect = ValueError("Unexpected error")
+
+        with self.assertRaises(ValueError):
+            fetch_website_content("http://example.com")
+
+        self.assertEqual(mock_get.call_count, 1)
+
+    @patch("requests.get")
+    def test_fetch_website_content_retries_and_succeeds(self, mock_get):
+        """Tests that fetch_website_content retries and succeeds on the third attempt."""
+        # First two attempts raise Timeout, third succeeds
+        success_response = MagicMock()
+        success_response.text = "Success HTML"
+        success_response.raise_for_status.return_value = None
+        mock_get.side_effect = [
+            Timeout("Timeout 1"),
+            Timeout("Timeout 2"),
+            success_response,
+        ]
+
+        result = fetch_website_content("http://example.com")
+
+        self.assertEqual(result, "Success HTML")
+        self.assertEqual(mock_get.call_count, 3)
 
     @patch("smtplib.SMTP_SSL")
     def test_send_email_via_gmail(self, mock_smtp_ssl):
@@ -52,7 +88,9 @@ class TestRunReminder(unittest.TestCase):
         send_email_via_gmail(subject="Test Subject", html_body="<p>Test Body</p>")
 
         # mock_smtp_ssl is called with host "smtp.gmail.com" and port 465
-        mock_smtp_ssl.assert_called_once_with("smtp.gmail.com", 465, context=unittest.mock.ANY)
+        mock_smtp_ssl.assert_called_once_with(
+            "smtp.gmail.com", 465, context=unittest.mock.ANY
+        )
 
         # Fetch the "server" from the context manager
         mock_server = mock_smtp_ssl.return_value.__enter__.return_value
@@ -65,10 +103,10 @@ class TestRunReminder(unittest.TestCase):
         args, kwargs = mock_server.sendmail.call_args
 
         # sendmail usually gets (from_addr, to_addrs, msg), we can check them here
-        self.assertEqual(args[0], "testuser@gmail.com")        # from
-        self.assertEqual(args[1], "recipient@example.com")     # to
-        self.assertIn("Test Subject", args[2])                 # Subject should be in msg
-        self.assertIn("Test Body", args[2])                    # Body should be in msg
+        self.assertEqual(args[0], "testuser@gmail.com")  # from
+        self.assertEqual(args[1], "recipient@example.com")  # to
+        self.assertIn("Test Subject", args[2])  # Subject should be in msg
+        self.assertIn("Test Body", args[2])  # Body should be in msg
 
     @patch("run_reminder.OpenAI")  # Mock the OpenAI client
     @patch("run_reminder.send_email_via_gmail")
@@ -109,11 +147,15 @@ class TestRunReminder(unittest.TestCase):
 
         # Check if the desired strings are in the generated HTML
         self.assertIn('<div class="grid product-info main-product">', html_body)
-        self.assertIn('<h3 class="product-info__title">Free eBook - Mastering Scientific Computing with R</h3>', html_body)
+        self.assertIn(
+            '<h3 class="product-info__title">Free eBook - Mastering Scientific Computing with R</h3>',
+            html_body,
+        )
 
         print(html_body)
         # Optional: You can also check that the complete HTML structure is correct
         # by checking other tags/structures.
+
 
 if __name__ == "__main__":
     unittest.main()
