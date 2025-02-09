@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import MagicMock
 from email_body_builder import EmailBodyBuilder
 from datetime import datetime
-import re
 
 class TestEmailBodyBuilder(unittest.TestCase):
 
@@ -23,20 +22,21 @@ class TestEmailBodyBuilder(unittest.TestCase):
                         <span class="product-info__author">By Sample Author            
                         ,                 Author 2</span>
                         <div class="free_learning__product_pages_date">Published: 2023</div>
-                        <div class="free_learning__product_description">Sample Description</div>
+                        <div class="free_learning__product_description">Sample Description Line 1
+                        Sample Description Line 2</div>
                     </div>
                 </div>
             </body>
         </html>
         """
         today_date = datetime.now().strftime("%d.%m.%Y")
-        expected_snippet = "<div class=\"main-product\">\n<h3 class=\"product-info__title\">Free eBook - Sample Title</h3>\n<span class=\"product-info__author\">By Sample Author            \n                        ,                 Author 2</span>\n<div class=\"free_learning__product_pages_date\">Published: 2023</div>\n<div class=\"free_learning__product_description\">Sample Description</div>\n</div>"
+        expected_snippet = "<div class=\"main-product\">\n<h3 class=\"product-info__title\">Free eBook - Sample Title</h3>\n<span class=\"product-info__author\">By Sample Author            \n                        ,                 Author 2</span>\n<div class=\"free_learning__product_pages_date\">Published: 2023</div>\n<div class=\"free_learning__product_description\">Sample Description Line 1\n                        Sample Description Line 2</div>\n</div>"
         expected_table_row = f"""
               <tr>
                 <td>Sample Title</td>
                 <td>Sample Author, Author 2</td>
                 <td>2023</td>
-                <td>Sample Description</td>
+                <td>Sample Description Line 1 Sample Description Line 2</td>
                 <td>Label 1, Label 2, Label 3</td>
                 <td>Packt</td>
                 <td>EPUB, PDF, MOBI</td>
@@ -151,4 +151,4 @@ class TestEmailBodyBuilder(unittest.TestCase):
         self.assertIn(expected_table_row.strip(), email_body)
 
 if __name__ == "__main__":
-    unittest.main() 
+    unittest.main()

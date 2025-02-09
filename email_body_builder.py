@@ -44,6 +44,7 @@ class EmailBodyBuilder:
                 description_tag = main_product_div.find("div", class_="free_learning__product_description")
                 if description_tag:
                     description = description_tag.get_text(strip=True)
+                    description = re.sub(r'\s+', ' ', description)
 
         # If snippet is empty, we provide a small hint
         if not snippet:
@@ -131,4 +132,4 @@ class EmailBodyBuilder:
           </body>
         </html>
         """
-        return email_html 
+        return email_html
